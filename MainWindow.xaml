@@ -5,9 +5,52 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoClicker"
         mc:Ignorable="d"
-        Title="AutoClicker" Height="450" Width="450">
-  <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-    <TextBox Width="200" Text="{Binding UserInput, UpdateSourceTrigger=PropertyChanged}"/>
-    <TextBlock Text="{Binding Hotkey}" FontSize="16" Margin="10" Foreground="Blue"/>
+        Title="AutoClicker" Height="450" Width="300">
+  <StackPanel>
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,5">
+      <RadioButton
+        Content="Click"
+        Margin="5,0,0,0"
+        Width="70"
+        VerticalAlignment="Center"
+        IsChecked="{Binding IsClickCountSelected}"
+        Tag="Click"
+      />
+      <TextBox
+        x:Name="clicksTextBoxName"
+        Width="50"
+        Padding="5"
+        Text="{Binding ClicksInput, UpdateSourceTrigger=PropertyChanged}"
+        PreviewTextInput="NumberOnly_PreviewTextInput"
+        VerticalAlignment="Center"
+      />
+      <Label Content="times" />
+    </StackPanel>
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+      <RadioButton
+        Content="Click for"
+        Margin="5,0,0,0"
+        Width="70"
+        VerticalAlignment="Center"
+        IsChecked="{Binding IsClickForCountSelected}"
+        Tag="ClickFor"
+      />
+      <TextBox
+        x:Name="clicksForTextBoxName"
+        Width="50"
+        Padding="5"
+        Text="{Binding ClickForInput, UpdateSourceTrigger=PropertyChanged}"
+        PreviewTextInput="NumberOnly_PreviewTextInput"
+        VerticalAlignment="Center"
+      />
+      <Label Content="times" />
+    </StackPanel>
+    <TextBlock
+      Text="{Binding Hotkey}"
+      FontSize="16"
+      Margin="10"
+      Foreground="Blue"
+      VerticalAlignment="Center"
+    />
   </StackPanel>
 </Window>

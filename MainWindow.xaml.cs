@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Input;
 using System.Windows.Markup;
+using System.Windows.Media;
 using Gma.System.MouseKeyHook;
 
 namespace AutoClicker;
@@ -12,27 +14,94 @@ namespace AutoClicker;
 /// </summary>
 public partial class MainWindow : Window, INotifyPropertyChanged
 {
+  private readonly System.Windows.Controls.TextBox clicksTextBox;
+  private readonly System.Windows.Controls.TextBox clicksForTextBox;
+
+  [GeneratedRegex("^[0-9]+$")]
+  private static partial Regex NumbersOnly();
+  private static readonly Regex _regex = NumbersOnly();
   private readonly IKeyboardMouseEvents _hook;
-
-  private List<string> mods = [];
-
+  private readonly List<string> mods = [];
   private string _lastKey = "";
+  private int _clicksInput = 100;
+  private int _clickForInput = 10;
+  private string _hotkey = "";
+  private bool _isClickCountSelected;
+  private bool _isClickForCountSelected;
 
-  private string _userInput = "Type something here...";
-  public string UserInput
+  public bool IsClickCountSelected
   {
-    get => _userInput;
+    get => _isClickCountSelected;
     set
     {
-      if(_userInput != value)
+      _isClickCountSelected = value;
+      if(value) IsClickForCountSelected = false;
+      OnPropertyChanged(nameof(IsClickCountSelected));
+
+      if(clicksForTextBox != null)
       {
-        _userInput = value;
-        OnPropertyChanged(nameof(UserInput));
+        clicksForTextBox.IsReadOnly = true;
+        clicksForTextBox.Background = new SolidColorBrush(Colors.LightGray);
+      }
+
+      if(clicksTextBox != null)
+      {
+        clicksTextBox.IsReadOnly = false;
+        clicksTextBox.Background = new SolidColorBrush(Colors.White);
       }
     }
   }
 
-  private string _hotkey = "";
+  public bool IsClickForCountSelected
+  {
+    get => _isClickForCountSelected;
+    set
+    {
+      _isClickForCountSelected = value;
+      if(value) IsClickCountSelected = false;
+
+      if(clicksTextBox != null)
+      {
+        clicksTextBox.IsReadOnly = true;
+        clicksTextBox.Background = new SolidColorBrush(Colors.LightGray);
+      }
+
+      if(clicksTextBox != null)
+      {
+        clicksForTextBox.IsReadOnly = false;
+        clicksForTextBox.Background = new SolidColorBrush(Colors.White);
+      }
+
+      OnPropertyChanged(nameof(IsClickForCountSelected));
+    }
+  }
+
+  public int ClicksInput
+  {
+    get => _clicksInput;
+    set
+    {
+      if(value > 0)
+      {
+        _clicksInput = value;
+        OnPropertyChanged(nameof(ClicksInput));
+      }
+    }
+  }
+
+  public int ClickForInput
+  {
+    get => _clickForInput;
+    set
+    {
+      if(value > 0)
+      {
+        _clickForInput = value;
+        OnPropertyChanged(nameof(ClickForInput));
+      }
+    }
+  }
+
   public string Hotkey
   {
     get => _hotkey;
@@ -49,14 +118,27 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     DataContext = this;
     _hook = Hook.GlobalEvents();
     _hook.KeyDown += OnKeyDown;
-    _hook.KeyPress += OnKeyPress;
     _hook.KeyUp += OnKeyUp;
     Closed += (s, e) => _hook.Dispose();
+    clicksTextBox = (System.Windows.Controls.TextBox)this.FindName("clicksTextBoxName");
+    clicksForTextBox = (System.Windows.Controls.TextBox)this.FindName("clicksForTextBoxName");
   }
 
-    private void OnKeyPress(object? sender, System.Windows.Forms.KeyPressEventArgs e)
+  private void NumberOnly_PreviewTextInput(object sernder, TextCompositionEventArgs e)
   {
-    // Debug.WriteLine($"Key pressed: {e.KeyChar}");
+    e.Handled = !_regex.IsMatch(e.Text);
+  }
+
+  private void NumberOnly_PreviewExecuted(object sender, ExecutedRoutedEventArgs e)
+  {
+    if(e.Command == ApplicationCommands.Paste)
+    {
+      string clipboardText = System.Windows.Clipboard.GetText();
+      if(!_regex.IsMatch(clipboardText))
+      {
+        e.Handled = true;
+      }
+    }
   }
 
   private void OnKeyDown(object? sender, System.Windows.Forms.KeyEventArgs e)
