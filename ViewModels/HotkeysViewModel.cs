@@ -9,14 +9,21 @@ namespace AutoClicker.ViewModels;
 
 public class HotkeysViewModel : INotifyPropertyChanged
 {
-  private IKeyboardMouseEvents? _hook;
-  private readonly List<string> mods = [];
+  private readonly IKeyboardMouseEvents _hook;
+  private readonly List<string> _modsPressed = [];
+
+  private readonly List<Keys> _modKeys = [
+    Keys.LShiftKey, Keys.RShiftKey,     // Shift keys
+    Keys.LMenu, Keys.RMenu,             // Alt keys
+    Keys.LControlKey, Keys.RControlKey  // Control keys
+  ];
+
 
   private string _lastKey = "";
-  private string _pressKeysMessage = "Press keys to bind";
+  private readonly string _pressKeysMessage = "Press keys to bind";
+  static private readonly string _noKeysMessage = "No key bound";
 
-  private string _startActionKeyOld = "";
-  private string _startActionKey = "";
+  private string _startActionKey = _noKeysMessage;
   public string StartActionKey
   {
     get => _startActionKey;
@@ -27,8 +34,7 @@ public class HotkeysViewModel : INotifyPropertyChanged
     }
   }
   
-  private string _stopActionKeyOld = "";
-  private string _stopActionKey = "";
+  private string _stopActionKey = _noKeysMessage;
   public string StopActionKey
   {
     get => _stopActionKey;
@@ -75,7 +81,6 @@ public class HotkeysViewModel : INotifyPropertyChanged
   {
     _bindingStartAction = true;
     _bindingStopAction = false;
-    _startActionKeyOld = _startActionKey;
 
     StartActionKey = _pressKeysMessage;
 
@@ -86,7 +91,6 @@ public class HotkeysViewModel : INotifyPropertyChanged
   {
     _bindingStopAction = true;
     _bindingStartAction = false;
-    _stopActionKeyOld = _stopActionKey;
 
     StopActionKey = _pressKeysMessage;
 
@@ -100,25 +104,25 @@ public class HotkeysViewModel : INotifyPropertyChanged
 
   private void OnKeyDown(object? sender, KeyEventArgs e)
   {
-    if(Array.Exists([Keys.LShiftKey, Keys.RShiftKey], key => key == e.KeyCode))
+    if(Array.Exists([.._modKeys.Take(2)], key => key == e.KeyCode))
     {
-      if(!mods.Exists(key => key == "Shift"))
+      if(!_modsPressed.Exists(key => key == "Shift"))
       {
-        mods.Add("Shift");
+        _modsPressed.Add("Shift");
       }
     }
-    else if(Array.Exists([Keys.LMenu, Keys.RMenu], key => key == e.KeyCode))
+    else if(Array.Exists([.._modKeys.Skip(2).Take(2)], key => key == e.KeyCode))
     {
-      if(!mods.Exists(key => key == "Alt"))
+      if(!_modsPressed.Exists(key => key == "Alt"))
       {
-        mods.Add("Alt");
+        _modsPressed.Add("Alt");
       }
     }
-    else if(Array.Exists([Keys.LControlKey, Keys.RControlKey], key => key == e.KeyCode))
+    else if(Array.Exists([.._modKeys.Skip(4)], key => key == e.KeyCode))
     {
-      if(!mods.Exists(key => key == "Ctrl"))
+      if(!_modsPressed.Exists(key => key == "Ctrl"))
       {
-        mods.Add("Ctrl");
+        _modsPressed.Add("Ctrl");
       }
     }
     else
@@ -126,7 +130,26 @@ public class HotkeysViewModel : INotifyPropertyChanged
       _lastKey = e.KeyCode.ToString();
     }
 
-    List<string> keys = _lastKey != "" ? [..mods, _lastKey] : [.. mods];
+    if(e.KeyCode == Keys.Escape)
+    {
+      if(_bindingStartAction)
+      {
+        StartActionKey = _noKeysMessage;
+      }
+      else
+      {
+        StopActionKey = _noKeysMessage;
+      }
+
+      _bindingStartAction = false;
+      _bindingStopAction = false;
+      BindStartButtonEnabled = true;
+      BindStopButtonEnabled = true;
+
+      return;
+    }
+
+    List<string> keys = _lastKey != "" ? [.._modsPressed, _lastKey] : [.. _modsPressed];
     string hotkey = string.Join(" + ", keys);
 
     if(_bindingStartAction)
@@ -138,29 +161,37 @@ public class HotkeysViewModel : INotifyPropertyChanged
     {
       StopActionKey = hotkey;
     }
+
+    if(!_modKeys.Exists(key => key == e.KeyCode))
+    {
+      _bindingStartAction = false;
+      _bindingStopAction = false;
+      BindStartButtonEnabled = true;
+      BindStopButtonEnabled = true;
+    }
   }
 
   private void OnKeyUp(object? sender, KeyEventArgs e)
   {
-    if(Array.Exists([Keys.LShiftKey, Keys.RShiftKey], key => key == e.KeyCode))
+    if(Array.Exists([.._modKeys.Take(2)], key => key == e.KeyCode))
     {
-      if(mods.Exists(key => key == "Shift"))
+      if(_modsPressed.Exists(key => key == "Shift"))
       {
-        mods.Remove("Shift");
+        _modsPressed.Remove("Shift");
       }
     }
-    else if(Array.Exists([Keys.LMenu, Keys.RMenu], key => key == e.KeyCode))
+    else if(Array.Exists([.._modKeys.Skip(2).Take(2)], key => key == e.KeyCode))
     {
-      if(mods.Exists(key => key == "Alt"))
+      if(_modsPressed.Exists(key => key == "Alt"))
       {
-        mods.Remove("Alt");
+        _modsPressed.Remove("Alt");
       }
     }
-    else if(Array.Exists([Keys.LControlKey, Keys.RControlKey], key => key == e.KeyCode))
+    else if(Array.Exists([.._modKeys.Skip(4)], key => key == e.KeyCode))
     {
-      if(mods.Exists(key => key == "Ctrl"))
+      if(_modsPressed.Exists(key => key == "Ctrl"))
       {
-        mods.Remove("Ctrl");
+        _modsPressed.Remove("Ctrl");
       }
     }
 
@@ -169,7 +200,7 @@ public class HotkeysViewModel : INotifyPropertyChanged
       _lastKey = "";
     }
 
-    List<string> keys = _lastKey != "" ? [..mods, _lastKey] : [.. mods];
+    List<string> keys = _lastKey != "" ? [.._modsPressed, _lastKey] : [.. _modsPressed];
     string hotkey = string.Join(" + ", keys);
 
     if(_bindingStartAction)
