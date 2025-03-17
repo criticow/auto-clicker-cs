@@ -122,8 +122,10 @@
         <StackPanel Margin="0,0,0,5" Orientation="Horizontal" VerticalAlignment="Center">
           <Button
             Padding="10,5,10,5"
-            Content="Bind Start"
+            Content="{Binding BindStartButtonContent}"
             Click="BindStartAction_Click"
+            Width="100"
+            Focusable="False"
             IsEnabled="{Binding BindStartButtonEnabled}"
           />
           <Label Content="{Binding StartActionKey}" />
@@ -131,8 +133,10 @@
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
           <Button
             Padding="10,5,10,5"
-            Content="Bind Stop"
+            Content="{Binding BindStopButtonContent}"
             Click="BindStopAction_Click"
+            Width="100"
+            Focusable="False"
             IsEnabled="{Binding BindStopButtonEnabled}"
           />
           <Label Content="{Binding StopActionKey}" />

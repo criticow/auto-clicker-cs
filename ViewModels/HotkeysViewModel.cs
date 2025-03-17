@@ -18,7 +18,6 @@ public class HotkeysViewModel : INotifyPropertyChanged
     Keys.LControlKey, Keys.RControlKey  // Control keys
   ];
 
-
   private string _lastKey = "";
   private readonly string _pressKeysMessage = "Press keys to bind";
   static private readonly string _noKeysMessage = "No key bound";
@@ -70,6 +69,28 @@ public class HotkeysViewModel : INotifyPropertyChanged
     }
   }
 
+  private string _bindStartButtonContent = "Start Action";
+  public string BindStartButtonContent
+  {
+    get => _bindStartButtonContent;
+    set
+    {
+      _bindStartButtonContent = value;
+      OnPropertyChanged(nameof(BindStartButtonContent));
+    }
+  }
+
+  private string _bindStopButtonContent = "Stop Action";
+  public string BindStopButtonContent
+  {
+    get => _bindStopButtonContent;
+    set
+    {
+      _bindStopButtonContent = value;
+      OnPropertyChanged(nameof(BindStopButtonContent));
+    }
+  }
+
   public HotkeysViewModel()
   {
     _hook = Hook.GlobalEvents();
@@ -77,24 +98,56 @@ public class HotkeysViewModel : INotifyPropertyChanged
     _hook.KeyUp += OnKeyUp;
   }
 
+  public void CancelBinding(bool unbind = true)
+  {
+    if(unbind)
+    {
+      StartActionKey = _bindingStartAction ? _noKeysMessage: StartActionKey;
+      StopActionKey = !_bindingStartAction ? _noKeysMessage: StopActionKey;
+    }
+
+    _bindingStartAction = false;
+    _bindingStopAction = false;
+    BindStartButtonEnabled = true;
+    BindStopButtonEnabled = true;
+    BindStartButtonContent = "Start Action";
+    BindStopButtonContent = "Stop Action";
+  }
+
   public void BindStartAction()
   {
+    if(_bindingStartAction)
+    {
+      CancelBinding(true);
+
+      return;
+    }
+
     _bindingStartAction = true;
     _bindingStopAction = false;
 
     StartActionKey = _pressKeysMessage;
 
     BindStopButtonEnabled = false;
+    BindStartButtonContent = "ESC Unbind";
   }
 
   public void BindStopAction()
   {
+    if(_bindingStopAction)
+    {
+      CancelBinding(true);
+
+      return;
+    }
+
     _bindingStopAction = true;
     _bindingStartAction = false;
 
     StopActionKey = _pressKeysMessage;
 
     BindStartButtonEnabled = false;
+    BindStopButtonContent = "ESC Unbind";
   }
 
   public void Dispose()
@@ -130,25 +183,6 @@ public class HotkeysViewModel : INotifyPropertyChanged
       _lastKey = e.KeyCode.ToString();
     }
 
-    if(e.KeyCode == Keys.Escape)
-    {
-      if(_bindingStartAction)
-      {
-        StartActionKey = _noKeysMessage;
-      }
-      else
-      {
-        StopActionKey = _noKeysMessage;
-      }
-
-      _bindingStartAction = false;
-      _bindingStopAction = false;
-      BindStartButtonEnabled = true;
-      BindStopButtonEnabled = true;
-
-      return;
-    }
-
     List<string> keys = _lastKey != "" ? [.._modsPressed, _lastKey] : [.. _modsPressed];
     string hotkey = string.Join(" + ", keys);
 
@@ -164,10 +198,7 @@ public class HotkeysViewModel : INotifyPropertyChanged
 
     if(!_modKeys.Exists(key => key == e.KeyCode))
     {
-      _bindingStartAction = false;
-      _bindingStopAction = false;
-      BindStartButtonEnabled = true;
-      BindStopButtonEnabled = true;
+      CancelBinding(e.KeyCode == Keys.Escape);
     }
   }
 
