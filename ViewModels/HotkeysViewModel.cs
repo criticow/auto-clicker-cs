@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Forms;
 using AutoClicker.Models;
+using AutoClicker.Services;
 using Gma.System.MouseKeyHook;
 
 namespace AutoClicker.ViewModels;
@@ -116,6 +117,13 @@ public class HotkeysViewModel : INotifyPropertyChanged
     BindStopButtonEnabled = true;
     BindStartButtonContent = "Start Action";
     BindStopButtonContent = "Stop Action";
+
+    var settings = SettingsService.Load();
+
+    settings.StartActionKey = [..StartActionKey.Replace(" ", "").Split("+")];
+    settings.StopActionKey = [..StopActionKey.Replace(" ", "").Split("+")];
+
+    SettingsService.Save(settings);
   }
 
   public void BindStartAction()
@@ -248,7 +256,6 @@ public class HotkeysViewModel : INotifyPropertyChanged
       StopActionKey = hotkey != "" ? hotkey : _pressKeysMessage;
     }
   }
-
 
   public event PropertyChangedEventHandler? PropertyChanged;
   protected virtual void OnPropertyChanged(string propertyName)
