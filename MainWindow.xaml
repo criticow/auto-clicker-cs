@@ -27,7 +27,6 @@
             Tag="Click"
           />
           <TextBox
-            x:Name="clicksTextBoxName"
             Width="50"
             Padding="5"
             Text="{Binding ClicksInput, UpdateSourceTrigger=PropertyChanged}"
@@ -46,7 +45,6 @@
             Tag="ClickFor"
           />
           <TextBox
-            x:Name="clicksForTextBoxName"
             Width="50"
             Padding="5"
             Text="{Binding ClickForInput, UpdateSourceTrigger=PropertyChanged}"
@@ -55,13 +53,12 @@
             VerticalAlignment="Center"
           />
           <ComboBox
-            SelectedItem="{Binding SelectedClickCount}"
             Margin="5,0,0,0"
             Width="80"
-            SelectedValuePath="Content"
-            x:Name="selectedClickCountName"
-            IsEnabled="{Binding IsClickForCountSelected}"
             Padding="5"
+            SelectedValue="{Binding SelectedClickCount, Mode=TwoWay}"
+            SelectedValuePath="Content"
+            IsEnabled="{Binding IsClickForCountSelected}"
           >
             <ComboBox.Items>
               <ComboBoxItem Content="ms" />

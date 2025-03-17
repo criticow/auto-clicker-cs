@@ -7,6 +7,10 @@ using System.Windows.Markup;
 using Gma.System.MouseKeyHook;
 
 using AutoClicker.ViewModels;
+using System.Text.Json;
+using System.IO;
+using System.Diagnostics;
+using AutoClicker.Models;
 
 namespace AutoClicker;
 

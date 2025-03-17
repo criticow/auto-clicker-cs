@@ -1,9 +1,20 @@
 using System.ComponentModel;
+using AutoClicker.Models;
 
 namespace AutoClicker.ViewModels;
 
 public class ClickCountViewModel : INotifyPropertyChanged
 {
+  public ClickCountViewModel(Settings settings)
+  {
+    ClicksInput = settings.ClickTimes;
+    ClickForInput = settings.ClickFor;
+
+    IsClickCountSelected = settings.ClickCountSelected == "times";
+    IsClickForCountSelected = settings.ClickCountSelected != "times";
+    SelectedClickCount = settings.ClickForUnit;
+  }
+
   private int _clicksInput = 100;
   public int ClicksInput
   {
@@ -32,7 +43,7 @@ public class ClickCountViewModel : INotifyPropertyChanged
     }
   }
 
-  private bool _isClickCountSelected;
+  private bool _isClickCountSelected = false;
   public bool IsClickCountSelected
   {
     get => _isClickCountSelected;
@@ -44,7 +55,7 @@ public class ClickCountViewModel : INotifyPropertyChanged
     }
   }
 
-  private bool _isClickForCountSelected;
+  private bool _isClickForCountSelected = true;
   public bool IsClickForCountSelected
   {
     get => _isClickForCountSelected;

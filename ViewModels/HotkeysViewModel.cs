@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Forms;
+using AutoClicker.Models;
 using Gma.System.MouseKeyHook;
 
 namespace AutoClicker.ViewModels;
@@ -91,11 +92,14 @@ public class HotkeysViewModel : INotifyPropertyChanged
     }
   }
 
-  public HotkeysViewModel()
+  public HotkeysViewModel(Settings settings)
   {
     _hook = Hook.GlobalEvents();
     _hook.KeyDown += OnKeyDown;
     _hook.KeyUp += OnKeyUp;
+
+    StartActionKey = string.Join(" + ", settings.StartActionKey);
+    StopActionKey = string.Join(" + ", settings.StopActionKey);
   }
 
   public void CancelBinding(bool unbind = true)
