@@ -9,6 +9,7 @@ namespace AutoClicker.ViewModels;
 
 public class HotkeysViewModel : INotifyPropertyChanged
 {
+  private readonly RunViewModel _runModel;
   private readonly IKeyboardMouseEvents _hook;
   private readonly List<string> _modsPressed = [];
 
@@ -91,8 +92,9 @@ public class HotkeysViewModel : INotifyPropertyChanged
     }
   }
 
-  public HotkeysViewModel(Settings settings)
+  public HotkeysViewModel(Settings settings, RunViewModel RunModel)
   {
+    _runModel = RunModel;
     _hook = Hook.GlobalEvents();
     _hook.KeyDown += OnKeyDown;
     _hook.KeyUp += OnKeyUp;
@@ -120,6 +122,8 @@ public class HotkeysViewModel : INotifyPropertyChanged
     BindStopButtonEnabled = true;
     BindStartButtonContent = "Start Action";
     BindStopButtonContent = "Stop Action";
+    _lastKey = "";
+    _modsPressed.Clear();
 
     var settings = SettingsService.Load();
 
@@ -172,11 +176,6 @@ public class HotkeysViewModel : INotifyPropertyChanged
 
   private void OnKeyDown(object? sender, KeyEventArgs e)
   {
-    if(!_bindingStartAction && !_bindingStopAction)
-    {
-      return;
-    }
-
     if(Array.Exists([.._modKeys.Take(2)], key => key == e.KeyCode))
     {
       if(!_modsPressed.Exists(key => key == "Shift"))
@@ -205,6 +204,25 @@ public class HotkeysViewModel : INotifyPropertyChanged
 
     List<string> keys = _lastKey != "" ? [.._modsPressed, _lastKey] : [.. _modsPressed];
     string hotkey = string.Join(" + ", keys);
+
+    bool notBinding = !_bindingStartAction && !_bindingStopAction;
+
+    if(notBinding && hotkey == StartActionKey && _runModel.IsStartButtonEnabled)
+    {
+      _runModel.Start();
+      return;
+    }
+
+    if(notBinding && hotkey == StopActionKey && _runModel.IsStopButtonEnabled)
+    {
+      _runModel.Stop();
+      return;
+    }
+
+    if(notBinding)
+    {
+      return;
+    }
 
     if(_bindingStartAction)
     {

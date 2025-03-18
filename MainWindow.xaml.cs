@@ -27,6 +27,16 @@ public partial class MainWindow : Window
     Closed += (s, e) => _mainViewModel.HotkeysModel.Dispose();
   }
 
+  private void Start_Click(object sender, RoutedEventArgs e)
+  {
+    _mainViewModel.RunModel.Start();
+  }
+
+  private void Stop_Click(object sender, RoutedEventArgs e)
+  {
+    _mainViewModel.RunModel.Stop();
+  }
+
   private void LostFocus_SaveSettings(object sender, RoutedEventArgs e)
   {
     _mainViewModel.ClickCountModel.SaveSettings();

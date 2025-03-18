@@ -14,8 +14,8 @@ public class MainViewModel
     var settings = SettingsService.Load();
 
     ClickCountModel = new ClickCountViewModel(settings);
-    HotkeysModel = new HotkeysViewModel(settings);
     ClickOptionsModel = new ClickOptionsViewModel(settings);
-    RunModel = new RunViewModel();
+    RunModel = new RunViewModel(ClickCountModel, ClickOptionsModel);
+    HotkeysModel = new HotkeysViewModel(settings, RunModel);
   }
 }

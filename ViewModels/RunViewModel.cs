@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace AutoClicker.ViewModels;
 
-public class RunViewModel : INotifyPropertyChanged
+public class RunViewModel(ClickCountViewModel ClickCountModel, ClickOptionsViewModel ClickOptionsModel) : INotifyPropertyChanged
 {
   private bool _isRunning = false;
 
@@ -27,6 +27,25 @@ public class RunViewModel : INotifyPropertyChanged
       OnPropertyChanged(nameof(IsStopButtonEnabled));
     }
   }
+
+  public void Start()
+  {
+    _isRunning = true;
+
+    IsStartButtonEnabled = !_isRunning;
+    IsStopButtonEnabled = _isRunning;
+  }
+
+  public void Stop()
+  {
+    _isRunning = false;
+
+    IsStartButtonEnabled = !_isRunning;
+    IsStopButtonEnabled = _isRunning;
+  }
+
+  private readonly ClickCountViewModel _clickCountModel = ClickCountModel;
+  private readonly ClickOptionsViewModel _clickOptionsModel = ClickOptionsModel;
 
   public event PropertyChangedEventHandler? PropertyChanged;
   public void OnPropertyChanged(string propertyName)
