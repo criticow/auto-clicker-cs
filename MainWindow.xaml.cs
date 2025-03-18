@@ -116,4 +116,9 @@ public partial class MainWindow : Window
       }
     }
   }
+
+  private void Button_PreviewKeyDown(object sender, KeyEventArgs e)
+  {
+    e.Handled = true;
+  }
 }

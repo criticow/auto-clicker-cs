@@ -58,7 +58,7 @@ public class ClickOptionsViewModel : INotifyPropertyChanged
       MouseButton = Settings.MouseButton;
     }
 
-    List<string> supportedActions = ["Single Click", "Double Click", "Mouse Down", "Mouse Up"];
+    List<string> supportedActions = ["Single Click", "Double Click"];
 
     ClickAction = "Single Click";
     if(supportedActions.Exists(action => action == Settings.ClickAction))

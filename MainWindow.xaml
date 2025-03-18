@@ -22,6 +22,7 @@
             Content="Start"
             IsEnabled="{Binding IsStartButtonEnabled}"
             Click="Start_Click"
+            PreviewKeyDown="Button_PreviewKeyDown"
           />
           <Button
             Width="120"
@@ -29,6 +30,7 @@
             Content="Stop"
             IsEnabled="{Binding IsStopButtonEnabled}"
             Click="Stop_Click"
+            PreviewKeyDown="Button_PreviewKeyDown"
           />
         </StackPanel>
       </StackPanel>
@@ -133,8 +135,6 @@
             <ComboBox.Items>
               <ComboBoxItem Content="Single Click" />
               <ComboBoxItem Content="Double Click" />
-              <ComboBoxItem Content="Button Down" />
-              <ComboBoxItem Content="Button Up" />
             </ComboBox.Items>
           </ComboBox>
         </StackPanel>
@@ -148,8 +148,8 @@
             Content="{Binding BindStartButtonContent}"
             Click="BindStartAction_Click"
             Width="100"
-            Focusable="False"
             IsEnabled="{Binding BindStartButtonEnabled}"
+            PreviewKeyDown="Button_PreviewKeyDown"
           />
           <Label Content="{Binding StartActionKey}" />
         </StackPanel>
@@ -159,8 +159,8 @@
             Content="{Binding BindStopButtonContent}"
             Click="BindStopAction_Click"
             Width="100"
-            Focusable="False"
             IsEnabled="{Binding BindStopButtonEnabled}"
+            PreviewKeyDown="Button_PreviewKeyDown"
           />
           <Label Content="{Binding StopActionKey}" />
         </StackPanel>

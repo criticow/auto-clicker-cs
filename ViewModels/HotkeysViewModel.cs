@@ -246,11 +246,6 @@ public class HotkeysViewModel : INotifyPropertyChanged
 
   private void OnKeyUp(object? sender, KeyEventArgs e)
   {
-    if(!_bindingStartAction && !_bindingStopAction)
-    {
-      return;
-    }
-
     if(Array.Exists([.._modKeys.Take(2)], key => key == e.KeyCode))
     {
       if(_modsPressed.Exists(key => key == "Shift"))
@@ -276,6 +271,11 @@ public class HotkeysViewModel : INotifyPropertyChanged
     if(e.KeyCode.ToString() == _lastKey)
     {
       _lastKey = "";
+    }
+
+    if(!_bindingStartAction && !_bindingStopAction)
+    {
+      return;
     }
 
     List<string> keys = _lastKey != "" ? [.._modsPressed, _lastKey] : [.. _modsPressed];
