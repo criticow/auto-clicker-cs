@@ -1,16 +1,20 @@
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows.Threading;
 
 namespace AutoClicker.ViewModels;
 
 public class RunViewModel(ClickCountViewModel ClickCountModel, ClickOptionsViewModel ClickOptionsModel) : INotifyPropertyChanged
 {
-  private bool _isRunning = false;
+  private volatile bool _isRunning = false;
+  private Thread? _thread;
+  private readonly Dispatcher _dispatcher = Dispatcher.CurrentDispatcher;
 
   public bool _isStartButtonEnabled = true;
   public bool IsStartButtonEnabled
   {
     get => _isStartButtonEnabled;
-    set
+    private set
     {
       _isStartButtonEnabled = value;
       OnPropertyChanged(nameof(IsStartButtonEnabled));
@@ -21,7 +25,7 @@ public class RunViewModel(ClickCountViewModel ClickCountModel, ClickOptionsViewM
   public bool IsStopButtonEnabled
   {
     get => _isStopButtonEnabled;
-    set
+    private set
     {
       _isStopButtonEnabled = value;
       OnPropertyChanged(nameof(IsStopButtonEnabled));
@@ -32,16 +36,46 @@ public class RunViewModel(ClickCountViewModel ClickCountModel, ClickOptionsViewM
   {
     _isRunning = true;
 
-    IsStartButtonEnabled = !_isRunning;
-    IsStopButtonEnabled = _isRunning;
+    // Use dispatcher to safe UI update via main thread
+    _dispatcher.Invoke(() => 
+    {
+      IsStartButtonEnabled = !_isRunning;
+      IsStopButtonEnabled = _isRunning;
+    });
+
+    _thread = new Thread(Run)
+    {
+      IsBackground = true
+    };
+
+    _thread.Start();
   }
 
   public void Stop()
   {
     _isRunning = false;
 
-    IsStartButtonEnabled = !_isRunning;
-    IsStopButtonEnabled = _isRunning;
+    // Finishes the thread if it is running
+    if(_thread != null && _thread.IsAlive)
+    {
+      _thread.Join();
+    }
+
+    // Use dispatcher to safe UI update via main thread
+    _dispatcher.Invoke(() => 
+    {
+      IsStartButtonEnabled = !_isRunning;
+      IsStopButtonEnabled = _isRunning;
+    });
+  }
+
+  private void Run()
+  {
+    while(_isRunning)
+    {
+      Debug.WriteLine("running");
+      Thread.Sleep(100);
+    }
   }
 
   private readonly ClickCountViewModel _clickCountModel = ClickCountModel;
