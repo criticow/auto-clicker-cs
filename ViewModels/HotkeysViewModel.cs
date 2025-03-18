@@ -1,4 +1,3 @@
-
 using System.ComponentModel;
 using System.Windows.Forms;
 using AutoClicker.Models;
@@ -12,6 +11,9 @@ public class HotkeysViewModel : INotifyPropertyChanged
   private readonly RunViewModel _runModel;
   private readonly IKeyboardMouseEvents _hook;
   private readonly List<string> _modsPressed = [];
+
+  private readonly SettingsService _settingsService = SettingsService.Instance;
+  private Settings Settings => _settingsService.Settings;
 
   private readonly List<Keys> _modKeys = [
     Keys.LShiftKey, Keys.RShiftKey,     // Shift keys
@@ -92,20 +94,20 @@ public class HotkeysViewModel : INotifyPropertyChanged
     }
   }
 
-  public HotkeysViewModel(Settings settings, RunViewModel RunModel)
+  public HotkeysViewModel(RunViewModel RunModel)
   {
     _runModel = RunModel;
     _hook = Hook.GlobalEvents();
     _hook.KeyDown += OnKeyDown;
     _hook.KeyUp += OnKeyUp;
 
-    StartActionKey = settings.StartActionKey.Count == 0 ?
+    StartActionKey = Settings.StartActionKey.Count == 0 ?
       _noKeysMessage :
-      string.Join(" + ", settings.StartActionKey);
+      string.Join(" + ", Settings.StartActionKey);
 
-    StopActionKey = settings.StopActionKey.Count == 0 ?
+    StopActionKey = Settings.StopActionKey.Count == 0 ?
       _noKeysMessage :
-      string.Join(" + ", settings.StopActionKey);
+      string.Join(" + ", Settings.StopActionKey);
   }
 
   public void CancelBinding(bool unbind = true)
@@ -125,14 +127,16 @@ public class HotkeysViewModel : INotifyPropertyChanged
     _lastKey = "";
     _modsPressed.Clear();
 
-    var settings = SettingsService.Load();
+    Settings.StartActionKey = StartActionKey == _noKeysMessage ?
+      [] :
+      [..StartActionKey.Replace(" ", "").Split("+")];
 
-    settings.StartActionKey = StartActionKey == _noKeysMessage ? [] : [..StartActionKey.Replace(" ", "").Split("+")];
-    settings.StopActionKey = StopActionKey == _noKeysMessage ? [] : [..StopActionKey.Replace(" ", "").Split("+")];
+    Settings.StopActionKey = StopActionKey == _noKeysMessage ?
+      [] :
+      [..StopActionKey.Replace(" ", "").Split("+")];
 
-    SettingsService.Save(settings);
+    SettingsService.Save();
   }
-
   public void BindStartAction()
   {
     if(_bindingStartAction)

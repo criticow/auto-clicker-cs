@@ -1,4 +1,5 @@
 
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
@@ -6,15 +7,33 @@ using AutoClicker.Models;
 
 namespace AutoClicker.Services;
 
-public class SettingsService
+public class SettingsService : INotifyPropertyChanged
 {
-  static public Settings Load()
-  {
-    Settings settings = new();
+  private static readonly Lazy<SettingsService> _instance = new(() => new SettingsService());
+  public static SettingsService Instance => _instance.Value;
 
+  private SettingsService()
+  {
+    LoadSettings();
+  }
+
+  private static Settings _settings = new();
+
+  public Settings Settings
+  {
+    get => _settings;
+    set
+    {
+      _settings = value;
+      OnPropertyChanged(nameof(Settings));
+    }
+  }
+
+  private static void LoadSettings()
+  {
     if(!File.Exists("settings.json"))
     {
-      var json = JsonSerializer.Serialize(settings);
+      var json = JsonSerializer.Serialize(_settings);
       File.WriteAllText("settings.json", json);
     }
     else
@@ -25,18 +44,22 @@ public class SettingsService
 
       if(loaded != null)
       {
-        settings = loaded;
+        _settings = loaded;
       }
     }
-
-    return settings;
   }
 
-  static public void Save(Settings settings)
+  public static void Save()
   {
-    var json = JsonSerializer.Serialize(settings);
+    var json = JsonSerializer.Serialize(_settings);
     File.WriteAllText("settings.json", json);
 
     Debug.WriteLine("Saving settings...");
+  }
+
+  public event PropertyChangedEventHandler? PropertyChanged;
+  public void OnPropertyChanged(string propertyName)
+  {
+    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
   }
 }

@@ -1,14 +1,19 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Threading;
+using AutoClicker.Models;
+using AutoClicker.Services;
 
 namespace AutoClicker.ViewModels;
 
-public class RunViewModel(ClickCountViewModel ClickCountModel, ClickOptionsViewModel ClickOptionsModel) : INotifyPropertyChanged
+public class RunViewModel : INotifyPropertyChanged
 {
   private volatile bool _isRunning = false;
   private Thread? _thread;
   private readonly Dispatcher _dispatcher = Dispatcher.CurrentDispatcher;
+
+  private readonly SettingsService _settingsService = SettingsService.Instance;
+  private Settings Settings => _settingsService.Settings;
 
   public bool _isStartButtonEnabled = true;
   public bool IsStartButtonEnabled
@@ -43,7 +48,7 @@ public class RunViewModel(ClickCountViewModel ClickCountModel, ClickOptionsViewM
       IsStopButtonEnabled = _isRunning;
     });
 
-    _thread = new Thread(Run)
+    _thread = new Thread(() => Run(Settings))
     {
       IsBackground = true
     };
@@ -69,17 +74,30 @@ public class RunViewModel(ClickCountViewModel ClickCountModel, ClickOptionsViewM
     });
   }
 
-  private void Run()
+  private void Run(Settings settings)
   {
+    int clicksPerformed = 0;
+
     while(_isRunning)
     {
-      Debug.WriteLine("running");
-      Thread.Sleep(100);
-    }
-  }
+      clicksPerformed++;
 
-  private readonly ClickCountViewModel _clickCountModel = ClickCountModel;
-  private readonly ClickOptionsViewModel _clickOptionsModel = ClickOptionsModel;
+      Debug.WriteLine("Clicked");
+
+      if(settings.ClickCountSelected == "times" && settings.ClickTimes == clicksPerformed)
+      {
+        _isRunning = false;
+        break;
+      }
+
+      Thread.Sleep(settings.ClickInterval);
+    }
+
+    _dispatcher.BeginInvoke(() => {
+      IsStartButtonEnabled = true;
+      IsStopButtonEnabled = false;
+    });
+  }
 
   public event PropertyChangedEventHandler? PropertyChanged;
   public void OnPropertyChanged(string propertyName)

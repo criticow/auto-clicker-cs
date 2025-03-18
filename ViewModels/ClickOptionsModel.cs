@@ -6,6 +6,10 @@ namespace AutoClicker.ViewModels;
 
 public class ClickOptionsViewModel : INotifyPropertyChanged
 {
+  private readonly SettingsService _settingsService = SettingsService.Instance;
+
+  private Settings Settings => _settingsService.Settings;
+
   private int _clickInterval;
   public int ClickInterval
   {
@@ -42,36 +46,34 @@ public class ClickOptionsViewModel : INotifyPropertyChanged
     }
   }
 
-  public ClickOptionsViewModel(Settings settings)
+  public ClickOptionsViewModel()
   {
-    ClickInterval = settings.ClickInterval;
+    ClickInterval = _settingsService.Settings.ClickInterval;
 
     List<string> supportedButtons = ["Left Button", "Right Button", "Middle Button"];
 
     MouseButton = "Left Button";
-    if(supportedButtons.Exists(button => button == settings.MouseButton))
+    if(supportedButtons.Exists(button => button == Settings.MouseButton))
     {
-      MouseButton = settings.MouseButton;
+      MouseButton = Settings.MouseButton;
     }
 
     List<string> supportedActions = ["Single Click", "Double Click", "Mouse Down", "Mouse Up"];
 
     ClickAction = "Single Click";
-    if(supportedActions.Exists(action => action == settings.ClickAction))
+    if(supportedActions.Exists(action => action == Settings.ClickAction))
     {
-      ClickAction = settings.ClickAction;
+      ClickAction = Settings.ClickAction;
     }
   }
 
   private void SaveSettings()
   {
-    var settings = SettingsService.Load();
+    Settings.ClickInterval = ClickInterval;
+    Settings.MouseButton = MouseButton;
+    Settings.ClickAction = ClickAction;
 
-    settings.ClickInterval = ClickInterval;
-    settings.MouseButton = MouseButton;
-    settings.ClickAction = ClickAction;
-
-    SettingsService.Save(settings);
+    SettingsService.Save();
   }
 
   public event PropertyChangedEventHandler? PropertyChanged;

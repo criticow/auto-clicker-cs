@@ -6,20 +6,23 @@ namespace AutoClicker.ViewModels;
 
 public class ClickCountViewModel : INotifyPropertyChanged
 {
-  public ClickCountViewModel(Settings settings)
-  {
-    ClicksInput = settings.ClickTimes;
-    ClickForInput = settings.ClickFor;
+  private readonly SettingsService _settingsService = SettingsService.Instance;
+  private Settings Settings => _settingsService.Settings;
 
-    IsClickCountSelected = settings.ClickCountSelected == "times";
-    IsClickForCountSelected = settings.ClickCountSelected != "times";
+  public ClickCountViewModel()
+  {
+    ClicksInput = Settings.ClickTimes;
+    ClickForInput = Settings.ClickFor;
+
+    IsClickCountSelected = Settings.ClickCountSelected == "times";
+    IsClickForCountSelected = Settings.ClickCountSelected != "times";
 
     List<string> supportedUnits = ["ms", "seconds", "minutes", "hours"];
 
     SelectedClickCount = "seconds";
-    if(supportedUnits.Exists(value => value == settings.ClickForUnit))
+    if(supportedUnits.Exists(value => value == Settings.ClickForUnit))
     {
-      SelectedClickCount = settings.ClickForUnit;
+      SelectedClickCount = Settings.ClickForUnit;
     }
   }
 
@@ -88,14 +91,13 @@ public class ClickCountViewModel : INotifyPropertyChanged
 
   public void SaveSettings()
   {
-    var settings = SettingsService.Load();
-    settings.ClickTimes = ClicksInput;
-    settings.ClickFor = ClickForInput;
+    Settings.ClickTimes = ClicksInput;
+    Settings.ClickFor = ClickForInput;
 
-    settings.ClickCountSelected = IsClickCountSelected ? "times" : "for";
-    settings.ClickForUnit = SelectedClickCount;
+    Settings.ClickCountSelected = IsClickCountSelected ? "times" : "for";
+    Settings.ClickForUnit = SelectedClickCount;
 
-    SettingsService.Save(settings);
+    SettingsService.Save();
   }
 
   public event PropertyChangedEventHandler? PropertyChanged;

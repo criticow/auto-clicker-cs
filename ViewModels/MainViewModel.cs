@@ -1,5 +1,3 @@
-using AutoClicker.Services;
-
 namespace AutoClicker.ViewModels;
 
 public class MainViewModel
@@ -11,11 +9,9 @@ public class MainViewModel
 
   public MainViewModel()
   {
-    var settings = SettingsService.Load();
-
-    ClickCountModel = new ClickCountViewModel(settings);
-    ClickOptionsModel = new ClickOptionsViewModel(settings);
-    RunModel = new RunViewModel(ClickCountModel, ClickOptionsModel);
-    HotkeysModel = new HotkeysViewModel(settings, RunModel);
+    ClickCountModel = new ClickCountViewModel();
+    ClickOptionsModel = new ClickOptionsViewModel();
+    RunModel = new RunViewModel();
+    HotkeysModel = new HotkeysViewModel(RunModel);
   }
 }
