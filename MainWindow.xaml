@@ -29,6 +29,7 @@
           <TextBox
             Width="50"
             Padding="5"
+            ContextMenu="{x:Null}"
             Text="{Binding ClicksInput, UpdateSourceTrigger=PropertyChanged}"
             PreviewKeyDown="NumberOnly_PreviewKeyDown"
             PreviewTextInput="NumberOnly_PreviewTextInput"
@@ -49,6 +50,7 @@
           <TextBox
             Width="50"
             Padding="5"
+            ContextMenu="{x:Null}"
             Text="{Binding ClickForInput, UpdateSourceTrigger=PropertyChanged}"
             PreviewKeyDown="NumberOnly_PreviewKeyDown"
             PreviewTextInput="NumberOnly_PreviewTextInput"
@@ -81,6 +83,7 @@
             Width="85"
             Padding="5"
             Text="50"
+            ContextMenu="{x:Null}"
             PreviewKeyDown="NumberOnly_PreviewKeyDown"
             PreviewTextInput="NumberOnly_PreviewTextInput"
             VerticalAlignment="Center"

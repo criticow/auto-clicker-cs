@@ -63,13 +63,47 @@ public partial class MainWindow : Window
 
   private void NumberOnly_PreviewKeyDown(object sender, KeyEventArgs e)
   {
-    TextBox? textBox = sender as TextBox;
+    if(sender is not TextBox textBox)
+    {
+      return;
+    }
 
-    if((e.Key == Key.Back || e.Key == Key.Delete) && textBox?.Text.Length == 1)
+    // Handle deleting when there is only one char
+    if(
+      (e.Key == Key.Back || e.Key == Key.Delete) && 
+      (textBox.Text.Length == 1 || textBox.SelectedText.Length == textBox.Text.Length)
+    )
     {
       textBox.Text = "0";
       textBox.CaretIndex = textBox.Text.Length; // Set caret to the end of the text
       e.Handled = true;
+    }
+
+    // Handle pasting
+    if(Keyboard.Modifiers == ModifierKeys.Control)
+    {
+      if(e.Key == Key.V)
+      {
+        if(!int.TryParse(Clipboard.GetText(), out _))
+        {
+          e.Handled = true;
+        }
+
+        if(textBox.Text == "0")
+        {
+          textBox.Text = Clipboard.GetText();
+          textBox.CaretIndex = textBox.Text.Length; // Set caret to the end of the text
+          e.Handled = true;
+        }
+      }
+
+      if(e.Key == Key.X && textBox.SelectedText.Length == textBox.Text.Length)
+      {
+        Clipboard.SetText(textBox.SelectedText);
+        textBox.Text = "0";
+        textBox.CaretIndex = textBox.Text.Length; // Set caret to the end of the text
+        e.Handled = true;
+      }
     }
   }
 }
