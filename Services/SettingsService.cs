@@ -1,4 +1,5 @@
 
+using System.Diagnostics;
 using System.IO;
 using System.Text.Json;
 using AutoClicker.Models;
@@ -35,5 +36,7 @@ public class SettingsService
   {
     var json = JsonSerializer.Serialize(settings);
     File.WriteAllText("settings.json", json);
+
+    Debug.WriteLine("Saving settings...");
   }
 }

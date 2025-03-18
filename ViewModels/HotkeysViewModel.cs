@@ -1,7 +1,5 @@
 
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Windows;
 using System.Windows.Forms;
 using AutoClicker.Models;
 using AutoClicker.Services;
@@ -99,8 +97,13 @@ public class HotkeysViewModel : INotifyPropertyChanged
     _hook.KeyDown += OnKeyDown;
     _hook.KeyUp += OnKeyUp;
 
-    StartActionKey = string.Join(" + ", settings.StartActionKey);
-    StopActionKey = string.Join(" + ", settings.StopActionKey);
+    StartActionKey = settings.StartActionKey.Count == 0 ?
+      _noKeysMessage :
+      string.Join(" + ", settings.StartActionKey);
+
+    StopActionKey = settings.StopActionKey.Count == 0 ?
+      _noKeysMessage :
+      string.Join(" + ", settings.StopActionKey);
   }
 
   public void CancelBinding(bool unbind = true)
@@ -120,8 +123,8 @@ public class HotkeysViewModel : INotifyPropertyChanged
 
     var settings = SettingsService.Load();
 
-    settings.StartActionKey = [..StartActionKey.Replace(" ", "").Split("+")];
-    settings.StopActionKey = [..StopActionKey.Replace(" ", "").Split("+")];
+    settings.StartActionKey = StartActionKey == _noKeysMessage ? [] : [..StartActionKey.Replace(" ", "").Split("+")];
+    settings.StopActionKey = StopActionKey == _noKeysMessage ? [] : [..StopActionKey.Replace(" ", "").Split("+")];
 
     SettingsService.Save(settings);
   }
@@ -169,6 +172,11 @@ public class HotkeysViewModel : INotifyPropertyChanged
 
   private void OnKeyDown(object? sender, KeyEventArgs e)
   {
+    if(!_bindingStartAction && !_bindingStopAction)
+    {
+      return;
+    }
+
     if(Array.Exists([.._modKeys.Take(2)], key => key == e.KeyCode))
     {
       if(!_modsPressed.Exists(key => key == "Shift"))
@@ -216,6 +224,11 @@ public class HotkeysViewModel : INotifyPropertyChanged
 
   private void OnKeyUp(object? sender, KeyEventArgs e)
   {
+    if(!_bindingStartAction && !_bindingStopAction)
+    {
+      return;
+    }
+
     if(Array.Exists([.._modKeys.Take(2)], key => key == e.KeyCode))
     {
       if(_modsPressed.Exists(key => key == "Shift"))

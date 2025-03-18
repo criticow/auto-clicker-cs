@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using AutoClicker.Models;
+using AutoClicker.Services;
 
 namespace AutoClicker.ViewModels;
 
@@ -12,7 +13,14 @@ public class ClickCountViewModel : INotifyPropertyChanged
 
     IsClickCountSelected = settings.ClickCountSelected == "times";
     IsClickForCountSelected = settings.ClickCountSelected != "times";
-    SelectedClickCount = settings.ClickForUnit;
+
+    List<string> supportedUnits = ["ms", "seconds", "minutes", "hours"];
+
+    SelectedClickCount = "seconds";
+    if(supportedUnits.Exists(value => value == settings.ClickForUnit))
+    {
+      SelectedClickCount = settings.ClickForUnit;
+    }
   }
 
   private int _clicksInput = 100;
@@ -21,7 +29,7 @@ public class ClickCountViewModel : INotifyPropertyChanged
     get => _clicksInput;
     set
     {
-      if(value > 0)
+      if(value != _clicksInput)
       {
         _clicksInput = value;
         OnPropertyChanged(nameof(ClicksInput));
@@ -35,7 +43,7 @@ public class ClickCountViewModel : INotifyPropertyChanged
     get => _clickForInput;
     set
     {
-      if(value > 0)
+      if(value != _clickForInput)
       {
         _clickForInput = value;
         OnPropertyChanged(nameof(ClickForInput));
@@ -78,9 +86,25 @@ public class ClickCountViewModel : INotifyPropertyChanged
     }
   }
 
+  public void SaveSettings()
+  {
+    var settings = SettingsService.Load();
+    settings.ClickTimes = ClicksInput;
+    settings.ClickFor = ClickForInput;
+
+    settings.ClickCountSelected = IsClickCountSelected ? "times" : "for";
+    settings.ClickForUnit = SelectedClickCount;
+
+    SettingsService.Save(settings);
+  }
+
   public event PropertyChangedEventHandler? PropertyChanged;
   public virtual void OnPropertyChanged(string propertyName)
   {
-    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    if(PropertyChanged != null)
+    {
+      PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
+      SaveSettings();
+    }
   }
 }

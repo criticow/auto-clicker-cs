@@ -1,16 +1,10 @@
-﻿using System.ComponentModel;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Forms;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Markup;
-using Gma.System.MouseKeyHook;
 
 using AutoClicker.ViewModels;
-using System.Text.Json;
-using System.IO;
-using System.Diagnostics;
-using AutoClicker.Models;
 
 namespace AutoClicker;
 
@@ -33,6 +27,11 @@ public partial class MainWindow : Window
     Closed += (s, e) => _mainViewModel.HotkeysModel.Dispose();
   }
 
+  private void LostFocus_SaveSettings(object sender, RoutedEventArgs e)
+  {
+    _mainViewModel.ClickCountModel.SaveSettings();
+  }
+
   private void BindStartAction_Click(object sender, RoutedEventArgs e)
   {
     _mainViewModel.HotkeysModel.BindStartAction();
@@ -43,20 +42,34 @@ public partial class MainWindow : Window
     _mainViewModel.HotkeysModel.BindStopAction();
   }
 
-  private void NumberOnly_PreviewTextInput(object sernder, TextCompositionEventArgs e)
+  private void NumberOnly_PreviewTextInput(object sender, TextCompositionEventArgs e)
   {
-    e.Handled = !_regex.IsMatch(e.Text);
+    TextBox? textBox = sender as TextBox;
+
+    if(!int.TryParse(e.Text, out _))
+    {
+      e.Handled = true;
+      return;
+    }
+
+    if(textBox?.Text == "0")
+    {
+      textBox.Text = e.Text; // Override the 0
+      textBox.CaretIndex = textBox.Text.Length; // Set caret to the end of the text
+
+      e.Handled = true;
+    }
   }
 
-  private void NumberOnly_PreviewExecuted(object sender, ExecutedRoutedEventArgs e)
+  private void NumberOnly_PreviewKeyDown(object sender, KeyEventArgs e)
   {
-    if(e.Command == ApplicationCommands.Paste)
+    TextBox? textBox = sender as TextBox;
+
+    if((e.Key == Key.Back || e.Key == Key.Delete) && textBox?.Text.Length == 1)
     {
-      string clipboardText = System.Windows.Clipboard.GetText();
-      if(!_regex.IsMatch(clipboardText))
-      {
-        e.Handled = true;
-      }
+      textBox.Text = "0";
+      textBox.CaretIndex = textBox.Text.Length; // Set caret to the end of the text
+      e.Handled = true;
     }
   }
 }

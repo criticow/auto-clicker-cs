@@ -30,10 +30,12 @@
             Width="50"
             Padding="5"
             Text="{Binding ClicksInput, UpdateSourceTrigger=PropertyChanged}"
+            PreviewKeyDown="NumberOnly_PreviewKeyDown"
             PreviewTextInput="NumberOnly_PreviewTextInput"
             IsEnabled="{Binding IsClickCountSelected}"
             VerticalAlignment="Center"
           />
+
           <Label Content="times" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -48,6 +50,7 @@
             Width="50"
             Padding="5"
             Text="{Binding ClickForInput, UpdateSourceTrigger=PropertyChanged}"
+            PreviewKeyDown="NumberOnly_PreviewKeyDown"
             PreviewTextInput="NumberOnly_PreviewTextInput"
             IsEnabled="{Binding IsClickForCountSelected}"
             VerticalAlignment="Center"
@@ -71,13 +74,14 @@
       </StackPanel>
     </GroupBox>
     <GroupBox Header="Click Options" Margin="10,0,10,5">
-      <StackPanel>
+      <StackPanel DataContext="{Binding ClickOptionsModel}">
         <StackPanel Margin="0,0,0,5" Orientation="Horizontal" VerticalAlignment="Center">
           <Label Content="Interval" Width="70" />
           <TextBox
             Width="85"
             Padding="5"
             Text="50"
+            PreviewKeyDown="NumberOnly_PreviewKeyDown"
             PreviewTextInput="NumberOnly_PreviewTextInput"
             VerticalAlignment="Center"
           />
@@ -86,9 +90,10 @@
         <StackPanel Margin="0,0,0,5" Orientation="Horizontal" VerticalAlignment="Center">
           <Label Content="Button" Width="70" />
           <ComboBox
-            SelectedValuePath="Content"
             Padding="5"
             Width="110"
+            SelectedValue="{Binding MouseButton, Mode=TwoWay}"
+            SelectedValuePath="Content"
           >
             <ComboBox.Items>
               <ComboBoxItem Content="Left Button" />
@@ -101,6 +106,7 @@
           <Label Content="Action" Width="70" />
           <ComboBox
             SelectedValuePath="Content"
+            SelectedValue="{Binding ClickAction, Mode=TwoWay}"
             Padding="5"
             Width="110"
           >
